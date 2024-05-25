@@ -10,10 +10,10 @@ app = typer.Typer(no_args_is_help=True)
 @app.command()
 def main(overwrite: bool = False):
     for table in CBS_OPENDATA_TABLE_LIST:
-        logger.info(f'Processing {table=} with {overwrite=}')
+        logger.info(f"Processing {table=} with {overwrite=}")
         if get_cbs_opendata_table(table, overwrite=overwrite):
             if table == CBS80072NED:
-                logger.info(f'Performing detailed processing on {table}')
+                logger.info(f"Performing detailed processing on {table}")
                 process_cbs_opendata_80072ned(overwrite=overwrite)
 
 

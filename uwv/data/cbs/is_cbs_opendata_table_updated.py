@@ -33,7 +33,9 @@ def is_cbs_opendata_table_updated(table_id: str) -> bool:
         logger.info(f"Table {table_id} has changed")
         logger.info(f'Modification date: {table_infos_new["Modified"]}')
         logger.info(f'Reason for modification: {table_infos_new["ReasonDelivery"]}')
-        logger.info(f"Please archive folder {CBS_OPENDATA_EXTERNAL_DATA_DIR / table_id} to proceed")
+        logger.info(
+            f"Please archive folder {CBS_OPENDATA_EXTERNAL_DATA_DIR / table_id} to proceed"
+        )
         return True
     else:
         logger.info(f"Table {table_id} has not been modified")
