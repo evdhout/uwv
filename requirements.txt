@@ -1,5 +1,6 @@
 requests
 pyarrow
+statsmodels
 black
 flake8
 ipython
