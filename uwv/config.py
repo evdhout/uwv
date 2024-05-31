@@ -25,7 +25,8 @@ CBS_OPENDATA_BASE_URL = "https://opendata.cbs.nl/ODataApi/odata"
 CBS_OPENDATA_EXTERNAL_DATA_DIR = EXTERNAL_DATA_DIR / "cbs"
 CBS_OPENDATA_PROCESSED_DATA_DIR = PROCESSED_DATA_DIR / "cbs"
 CBS80072NED = "80072ned"
-CBS_OPENDATA_TABLE_LIST = [CBS80072NED]
+CBS84437NED = "84437ned"
+CBS_OPENDATA_TABLE_LIST = [CBS80072NED, CBS84437NED]
 
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135

@@ -1,5 +1,8 @@
 requests
 pyarrow
+altair[all]
+vl-convert-python
+seaborn
 black
 flake8
 ipython
