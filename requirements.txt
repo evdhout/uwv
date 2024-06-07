@@ -1,5 +1,7 @@
 requests
 pyarrow
+altair
+vl-convert-python
 statsmodels
 black
 flake8
