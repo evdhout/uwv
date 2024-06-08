@@ -1,6 +1,9 @@
 # Data
 /data/
 
+# Generated output, not suitable for commit to repository
+/output/
+
 # Mac OS-specific storage files
 .DS_Store
 
