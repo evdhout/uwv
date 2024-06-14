@@ -1,3 +1,5 @@
+requests
+pyarrow
 black
 flake8
 ipython
