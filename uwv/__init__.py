@@ -1,1 +1,1 @@
-import config  # noqa: F401
+import uwv.config  # noqa: F401
