@@ -8,14 +8,10 @@ from loguru import logger
 from uwv.config import CBS_OPENDATA_PROCESSED_DATA_DIR, CBS80072NED, PROCESSED_DATA_DIR
 
 PREDICTION_NAME = {'le': 'linear extrapolation', 'ra': 'rolling average'}
+PREFIXES = ['le', 'ra']
 
 app = typer.Typer(no_args_is_help=True)
-
-try:
-    slp = pd.read_parquet(CBS_OPENDATA_PROCESSED_DATA_DIR / f"{CBS80072NED}.parquet")
-except FileNotFoundError:
-    logger.error(f"File {CBS_OPENDATA_PROCESSED_DATA_DIR} / {CBS80072NED}.parquet not found.")
-    raise typer.Abort()
+slp: pd.DataFrame
 
 
 def get_previous_slp(row: pd.DataFrame, year_delta: int):
@@ -50,8 +46,8 @@ def calculate_squared_error(row: pd.DataFrame, prediction: str) -> float:
     return (row.sick_leave_percentage - row[prediction]) ** 2
 
 
-def calculate_errors(prefixes: [str]):
-    for prefix in prefixes:
+def calculate_errors():
+    for prefix in PREFIXES:
         logger.info(f"Calculating absolute error for {PREDICTION_NAME[prefix]}")
 
         prediction = f"{prefix}_prediction"
@@ -61,8 +57,8 @@ def calculate_errors(prefixes: [str]):
         slp[f'{prefix}_squared_error'] = slp.apply(lambda row: calculate_squared_error(row, prediction), axis=1)
 
 
-def round_error_values(prefixes: [str]):
-    for prefix in prefixes:
+def round_error_values():
+    for prefix in PREFIXES:
         logger.info(f"Rounding absolute and squared error for {PREDICTION_NAME[prefix]}")
 
         absolute_error = f"{prefix}_absolute_error"
@@ -74,8 +70,8 @@ def round_error_values(prefixes: [str]):
             lambda x: np.round(x, decimals=2) if not pd.isna(x) else pd.NA)
 
 
-def round_predictions(prefixes: [str]):
-    for prefix in prefixes:
+def round_predictions():
+    for prefix in PREFIXES:
         logger.info(f"Rounding predictions for {PREDICTION_NAME[prefix]}")
         prediction = f"{prefix}_prediction"
         slp[prediction] = slp[prediction].apply(lambda x: np.round(x, decimals=1) if not pd.isna(x) else pd.NA)
@@ -84,19 +80,24 @@ def round_predictions(prefixes: [str]):
 def show_total_errors():
     slp_total = slp[slp.sbi == 'T001081']
 
-    print('Mean absolute error of linear extrapolation for total on quarter number')
-    print(slp_total.groupby('period_quarter_number')['le_absolute_error'].mean())
-    print('Root mean squared error of total on quarter number')
-    print(slp_total.groupby('period_quarter_number')['le_squared_error'].mean().apply(lambda x: math.sqrt(x)))
-
-    print('Mean absolute error of rolling average for total on quarter number')
-    print(slp_total.groupby('period_quarter_number')['ra_absolute_error'].mean())
-    print('Root mean squared error of total on quarter number')
-    print(slp_total.groupby('period_quarter_number')['ra_squared_error'].mean().apply(lambda x: math.sqrt(x)))
+    for prefix in PREFIXES:
+        print(f'Mean absolute error of {PREDICTION_NAME[prefix]} for total on quarter number')
+        print(slp_total.groupby('period_quarter_number')[f'{prefix}_absolute_error'].mean())
+        print('Root mean squared error of total on quarter number')
+        print(slp_total.groupby('period_quarter_number')[f'{prefix}_squared_error']
+              .mean()
+              .apply(lambda x: math.sqrt(x)))
 
 
 @app.command()
 def main(force: bool = False, info: bool = False):
+    global slp
+    try:
+        slp = pd.read_parquet(CBS_OPENDATA_PROCESSED_DATA_DIR / f"{CBS80072NED}.parquet")
+    except FileNotFoundError:
+        logger.error(f"File {CBS_OPENDATA_PROCESSED_DATA_DIR} / {CBS80072NED}.parquet not found.")
+        raise typer.Abort()
+
     baseline_parquet = PROCESSED_DATA_DIR / f"baseline-{CBS80072NED}.parquet"
     baseline_csv = PROCESSED_DATA_DIR / f"baseline-{CBS80072NED}.csv"
 
@@ -110,9 +111,9 @@ def main(force: bool = False, info: bool = False):
     logger.info("Calculating prediction rolling average")
     slp['ra_prediction'] = slp.apply(lambda row: get_prediction_rolling_average(row), axis=1)
 
-    round_predictions(['le', 'ra'])
-    calculate_errors(['le', 'ra'])
-    round_error_values(['le', 'ra'])
+    round_predictions()
+    calculate_errors()
+    round_error_values()
 
     slp.to_csv(baseline_csv, index=False)
     slp.to_parquet(baseline_parquet, index=False)
