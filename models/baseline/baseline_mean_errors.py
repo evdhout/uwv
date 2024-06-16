@@ -23,7 +23,7 @@ def calculate_mean_absolute_error() -> {str: pd.DataFrame}:
                               observed=True)[[f'{prefix}_absolute_error', f'{prefix}_squared_error']].mean()
         df[f'{prefix}_squared_error'] = df[f'{prefix}_squared_error'].apply(lambda x: math.sqrt(x))
         df = df.rename(columns={f'{prefix}_squared_error': f'root_mean_squared_error_{prefix}',
-                           f'{prefix}_absolute_error': f'mean_absolute_error_{prefix}'})
+                                f'{prefix}_absolute_error': f'mean_absolute_error_{prefix}'})
         dfs[prefix] = df
 
     return dfs
