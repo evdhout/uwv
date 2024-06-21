@@ -20,6 +20,7 @@ MODELS_DIR = PROJ_ROOT / "models"
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
+OUTPUT_DIR = PROJ_ROOT / "output"
 
 CBS_OPENDATA_BASE_URL = "https://opendata.cbs.nl/ODataApi/odata"
 CBS_OPENDATA_EXTERNAL_DATA_DIR = EXTERNAL_DATA_DIR / "cbs"
