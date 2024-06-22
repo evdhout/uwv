@@ -15,7 +15,7 @@ app = typer.Typer(no_args_is_help=True)
 baseline: pd.DataFrame
 
 
-def calculate_mean_absolute_error() -> {str: pd.DataFrame}:
+def calculate_mean_error() -> {str: pd.DataFrame}:
     dfs: {str: pd.DataFrame} = {}
     for prefix in PREFIXES:
         logger.info(f'Calculating means of absolute and squared errors for {PREDICTION_NAME[prefix]}')
@@ -46,7 +46,7 @@ def main(force: bool = False):
         raise typer.Abort()
 
     logger.info(f'Calculating mean absolute errors and root mean squared errors')
-    dfs = calculate_mean_absolute_error()
+    dfs = calculate_mean_error()
 
     merged_df = dfs['le'].join(dfs['ra'], how='inner')
 
