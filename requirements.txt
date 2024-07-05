@@ -5,9 +5,7 @@ altair[all]
 vl-convert-python
 requests
 pyarrow
-altair[all]
-vl-convert-python
-seaborn
+cbsodata
 black
 flake8
 ipython
