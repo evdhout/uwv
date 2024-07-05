@@ -1,3 +1,5 @@
+plotly
+plotly.express
 requests
 pyarrow
 altair[all]
