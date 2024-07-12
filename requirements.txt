@@ -1,3 +1,5 @@
+cbsodata
+requests
 black
 flake8
 ipython
@@ -15,4 +17,3 @@ scikit-learn
 tqdm
 typer
 -e .
-requests
