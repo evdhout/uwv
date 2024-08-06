@@ -1,6 +1,12 @@
 statsmodels
+seaborn
+plotly
+plotly-express
+altair[all]
+vl-convert-python
 requests
 pyarrow
+cbsodata
 black
 flake8
 ipython
