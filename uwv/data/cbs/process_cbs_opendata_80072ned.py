@@ -7,6 +7,7 @@ from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR, CBS_OPENDATA_PROCESSED_DA
 
 def process_cbs_opendata_80072ned(overwrite: bool = False):
     external_data_dir = CBS_OPENDATA_EXTERNAL_DATA_DIR / CBS80072NED
+    csv_file = CBS_OPENDATA_PROCESSED_DATA_DIR / f"{CBS80072NED}.csv"
     parquet_file = CBS_OPENDATA_PROCESSED_DATA_DIR / f"{CBS80072NED}.parquet"
 
     if parquet_file.exists() and not overwrite:
@@ -21,6 +22,7 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     sbi: pd.DataFrame = pd.read_csv(
         external_data_dir / f"{CBS80072NED}_BedrijfskenmerkenSBI2008.csv", sep=","
     )
+
     cat_groups: pd.DataFrame = pd.read_csv(
         external_data_dir / f"{CBS80072NED}_CategoryGroups.csv", sep=","
     )
@@ -64,7 +66,7 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         "Merge sick_leave_percentage with periods and keep period status and description and calculated fields"
     )
     sick_leave_percentage: pd.DataFrame = pd.read_csv(
-        external_data_dir / f"{CBS80072NED}_UntypedDataSet.csv", sep=",", na_values="       ."
+        external_data_dir / f"{CBS80072NED}_UntypedDataSet.csv", sep=",", na_values="       .",
     )
 
     slp_periods = (
@@ -94,6 +96,9 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         .rename(columns={"Title": "sbi_title", "Description": "sbi_description"})
     )
 
+    # there is a trailing space in the SBI category id, remove it
+    slp_periods_sbi["BedrijfskenmerkenSBI2008"] = slp_periods_sbi["BedrijfskenmerkenSBI2008"].apply(lambda x: x.strip())
+
     logger.info("Converting column names to uniform column")
     slp_periods_sbi = slp_periods_sbi.rename(
         columns={
@@ -120,4 +125,5 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         slp_periods_sbi[column] = slp_periods_sbi[column].astype("category")
 
     slp_periods_sbi.to_parquet(parquet_file)
-    logger.info("%s has been saved" % parquet_file)
+    slp_periods_sbi.to_csv(csv_file, index=False)
+    logger.info("%s and %s have been saved" % (parquet_file, csv_file))
