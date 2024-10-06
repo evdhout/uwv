@@ -28,6 +28,12 @@ CBS_OPENDATA_PROCESSED_DATA_DIR = PROCESSED_DATA_DIR / "cbs"
 CBS80072NED = "80072ned"
 CBS_OPENDATA_TABLE_LIST = [CBS80072NED]
 
+KNMI_AVG_TEMP_MONTH_URL = "https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/maandgegevens/mndgeg_260_tg.txt"
+KNMI_EXTERNAL_DATA_DIR = EXTERNAL_DATA_DIR / "knmi"
+KNMI_INTERIM_DATA_DIR = INTERIM_DATA_DIR / "knmi"
+KNMI_PROCESSED_DATA_DIR = PROCESSED_DATA_DIR / "knmi"
+KNMI_AVG_TEMP = "knmi_avg_temp"
+
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
 try:
