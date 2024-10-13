@@ -109,6 +109,9 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         }
     )
 
+    # sbi_description is too verbose to keep
+    slp_periods_sbi = slp_periods_sbi.drop("sbi_description", axis=1)
+
     # Convert columns to categorical
     categorical_columns = [
         "sbi",
@@ -117,7 +120,6 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         "period_status",
         "period_type",
         "sbi_title",
-        "sbi_description",
         "category_group_title",
     ]
 
