@@ -66,7 +66,9 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         "Merge sick_leave_percentage with periods and keep period status and description and calculated fields"
     )
     sick_leave_percentage: pd.DataFrame = pd.read_csv(
-        external_data_dir / f"{CBS80072NED}_UntypedDataSet.csv", sep=",", na_values="       .",
+        external_data_dir / f"{CBS80072NED}_UntypedDataSet.csv",
+        sep=",",
+        na_values="       .",
     )
 
     slp_periods = (
@@ -97,7 +99,9 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     )
 
     # there is a trailing space in the SBI category id, remove it
-    slp_periods_sbi["BedrijfskenmerkenSBI2008"] = slp_periods_sbi["BedrijfskenmerkenSBI2008"].apply(lambda x: x.strip())
+    slp_periods_sbi["BedrijfskenmerkenSBI2008"] = slp_periods_sbi[
+        "BedrijfskenmerkenSBI2008"
+    ].apply(lambda x: x.strip())
 
     logger.info("Converting column names to uniform column")
     slp_periods_sbi = slp_periods_sbi.rename(
