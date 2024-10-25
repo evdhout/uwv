@@ -30,7 +30,9 @@ def is_cbs_opendata_table_updated(table_id: str) -> bool:
     table_infos_modified = table_infos["Modified"]
     table_infos_remote_modified = table_infos_remote["Modified"]
 
-    logger.trace(f"Checking if table {table_id} has changed. Local mod date {table_infos_modified}")
+    logger.trace(
+        f"Checking if table {table_id} has changed. Local mod date {table_infos_modified}"
+    )
     if table_infos_modified != table_infos_remote_modified:
         logger.trace(f"Table {table_id} has changed")
         logger.trace(f"Modification date: {table_infos_modified}")
