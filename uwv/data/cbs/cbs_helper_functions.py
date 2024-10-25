@@ -9,7 +9,7 @@ def _get_response(url):
     if response.ok:
         return response
     else:
-        raise Exception(f"Url {url} returned {response.status_code}")
+        raise Exception(f"Url {url} returned {response.status_code} {response.text}")
 
 
 def get_dataframe_from_json_response(url: str) -> pd.DataFrame:
@@ -18,6 +18,10 @@ def get_dataframe_from_json_response(url: str) -> pd.DataFrame:
 
 def get_dict_from_json_response(url: str) -> dict:
     return _get_response(url).json()["value"][0]
+
+
+def get_json_response(url: str) -> dict:
+    return _get_response(url).json()["value"]
 
 
 def get_dataframe_value(
@@ -39,6 +43,10 @@ def create_cbs_data_path_if_not_exists(table_id: str):
     if not is_cbs_data_path(table_id):
         table_path = CBS_OPENDATA_EXTERNAL_DATA_DIR / table_id
         table_path.mkdir(exist_ok=True, parents=True)
+
+
+def get_table_infos_field(table_infos, field: str = "Modified") -> str:
+    return table_infos[0][field]
 
 
 if __name__ == "__main__":

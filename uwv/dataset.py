@@ -1,28 +1,27 @@
-from pathlib import Path
-
-import typer
 from loguru import logger
-from tqdm import tqdm
+import typer
 
-from uwv.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 
-app = typer.Typer()
+from uwv.config import CBS_OPENDATA_TABLE_LIST, CBS80072NED
+from uwv.data.cbs.get_cbs_opendata_table import get_cbs_opendata_table
+from uwv.data.cbs.process_cbs_opendata_80072ned import process_cbs_opendata_80072ned
+
+
+app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = RAW_DATA_DIR / "dataset.csv",
-    output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
-    # ----------------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Processing dataset...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Processing dataset complete.")
-    # -----------------------------------------
+def main(overwrite: bool = False):
+    for table in CBS_OPENDATA_TABLE_LIST:
+        logger.info(f"Downloading {table=} with {overwrite=} if newer version available")
+        get_cbs_opendata_table(table, overwrite=overwrite)
+
+    # post processing datasets
+    logger.info("Generating 80072ned with COVID indicator")
+    process_cbs_opendata_80072ned(overwrite=overwrite)
+
+    logger.info("Generating augmented dataset with additional columns")
+    logger.critical("Generating augmented columns not implemented yet")
 
 
 if __name__ == "__main__":

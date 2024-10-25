@@ -1,10 +1,10 @@
 import typer
 from typing_extensions import Annotated
 from loguru import logger
+import cbsodata
 
 from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR
 from uwv.data.cbs.is_cbs_opendata_table_updated import is_cbs_opendata_table_updated
-from uwv.data.cbs.download_cbs_opendata_table import download_cbs_opendata_table
 
 
 def get_cbs_opendata_table(
@@ -32,7 +32,7 @@ def get_cbs_opendata_table(
         else:
             return False
 
-    download_cbs_opendata_table(cbs_table_id)
+    cbsodata.get_data(cbs_table_id, dir=cbs_table_path)
 
     return True
 

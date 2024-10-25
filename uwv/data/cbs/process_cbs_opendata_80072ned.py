@@ -1,6 +1,6 @@
 from loguru import logger
-from pathlib import Path
 import pandas as pd
+
 
 from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR, CBS_OPENDATA_PROCESSED_DATA_DIR, CBS80072NED
 
@@ -16,16 +16,12 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     else:
         CBS_OPENDATA_PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Processing CBS OpenData tabel {CBS80072NED}")
+    logger.debug(f"Processing CBS OpenData tabel {CBS80072NED}")
 
-    logger.info("Merge SBI df with groups and keep group title only")
-    sbi: pd.DataFrame = pd.read_csv(
-        external_data_dir / f"{CBS80072NED}_BedrijfskenmerkenSBI2008.csv", sep=","
-    )
+    logger.trace("Merge SBI df with groups and keep group title only")
+    sbi: pd.DataFrame = pd.read_json(external_data_dir / f"BedrijfskenmerkenSBI2008.json")
 
-    cat_groups: pd.DataFrame = pd.read_csv(
-        external_data_dir / f"{CBS80072NED}_CategoryGroups.csv", sep=","
-    )
+    cat_groups: pd.DataFrame = pd.read_json(external_data_dir / f"CategoryGroups.json")
 
     sbi_cat_groups = (
         pd.merge(
@@ -45,14 +41,14 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         )
     )
 
-    logger.info("Processing period key format into separate columns")
+    logger.trace("Processing period key format into separate columns")
     # The periods table describes the periods
     # the period key is yyyy(KW|JJ)qq
     # yyyy is the year
     # KW indicates it is a quarter : qq is the quarter number
     # JJ indicates it is a year : qq is equal to 00
     # split the period key into separate columns for easy slicing further down the line
-    periods: pd.DataFrame = pd.read_csv(external_data_dir / f"{CBS80072NED}_Perioden.csv", sep=",")
+    periods: pd.DataFrame = pd.read_json(external_data_dir / f"Perioden.json")
     periods[["period_year", "period_type", "period_quarter_number"]] = periods["Key"].str.extract(
         r"(\d+)(KW|JJ)(\d+)", expand=True
     )
@@ -62,14 +58,10 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         lambda row: row["period_year"] * 10 + row["period_quarter_number"], axis=1
     )
 
-    logger.info(
+    logger.trace(
         "Merge sick_leave_percentage with periods and keep period status and description and calculated fields"
     )
-    sick_leave_percentage: pd.DataFrame = pd.read_csv(
-        external_data_dir / f"{CBS80072NED}_UntypedDataSet.csv",
-        sep=",",
-        na_values="       .",
-    )
+    sick_leave_percentage: pd.DataFrame = pd.read_json(external_data_dir / f"TypedDataSet.json")
 
     slp_periods = (
         pd.merge(
@@ -84,7 +76,7 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         .rename(columns={"Title": "period_title", "Status": "period_status"})
     )
 
-    logger.info("Merge slp_periods with sbi information")
+    logger.trace("Merge slp_periods with sbi information")
     slp_periods_sbi = (
         pd.merge(
             left=slp_periods,
@@ -103,7 +95,7 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         "BedrijfskenmerkenSBI2008"
     ].apply(lambda x: x.strip())
 
-    logger.info("Converting column names to uniform column")
+    logger.trace("Converting column names to uniform column")
     slp_periods_sbi = slp_periods_sbi.rename(
         columns={
             "ID": "id",
@@ -135,4 +127,4 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
 
     slp_periods_sbi.to_parquet(parquet_file)
     slp_periods_sbi.to_csv(csv_file, index=False)
-    logger.info("%s and %s have been saved" % (parquet_file, csv_file))
+    logger.trace("%s and %s have been saved" % (parquet_file, csv_file))

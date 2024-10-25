@@ -1,7 +1,7 @@
 import json
 from loguru import logger
 
-from uwv.config import CBS_OPENDATA_BASE_URL, CBS_OPENDATA_EXTERNAL_DATA_DIR
+from uwv.config import CBS_OPENDATA_BULK_URL, CBS_OPENDATA_EXTERNAL_DATA_DIR
 from uwv.data.cbs.cbs_helper_functions import (
     get_dict_from_json_response,
     get_dataframe_from_json_response,
@@ -11,7 +11,7 @@ from uwv.data.cbs.cbs_helper_functions import (
 def download_cbs_opendata_table(table_id: str):
     cbs_table_path = CBS_OPENDATA_EXTERNAL_DATA_DIR / table_id
     logger.info(f"Retrieving CBS OpenData table {table_id}")
-    table_base = get_dataframe_from_json_response(f"{CBS_OPENDATA_BASE_URL}/{table_id}")
+    table_base = get_dataframe_from_json_response(f"{CBS_OPENDATA_BULK_URL}/{table_id}")
     table_base.to_csv(f"{cbs_table_path}/{table_id}.csv", index=False)
 
     for _, row in table_base.iterrows():
