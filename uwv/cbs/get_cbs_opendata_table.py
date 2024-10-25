@@ -4,7 +4,7 @@ from loguru import logger
 import cbsodata
 
 from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR
-from uwv.data.cbs.is_cbs_opendata_table_updated import is_cbs_opendata_table_updated
+from uwv.cbs.is_cbs_opendata_table_updated import is_cbs_opendata_table_updated
 
 
 def get_cbs_opendata_table(

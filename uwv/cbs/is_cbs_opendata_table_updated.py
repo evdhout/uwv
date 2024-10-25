@@ -1,14 +1,9 @@
-from pathlib import Path
 import json
 import typer
 from loguru import logger
 
 from uwv.config import CBS_OPENDATA_API_URL, CBS_OPENDATA_EXTERNAL_DATA_DIR
-from uwv.data.cbs.cbs_helper_functions import (
-    get_json_response,
-    get_table_infos_field,
-    get_dict_from_json_response,
-)
+from uwv.cbs.cbs_helper_functions import get_dict_from_json_response
 
 
 def is_cbs_opendata_table_updated(table_id: str) -> bool:

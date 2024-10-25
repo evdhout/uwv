@@ -3,8 +3,8 @@ import typer
 
 
 from uwv.config import CBS_OPENDATA_TABLE_LIST, CBS80072NED
-from uwv.data.cbs.get_cbs_opendata_table import get_cbs_opendata_table
-from uwv.data.cbs.process_cbs_opendata_80072ned import process_cbs_opendata_80072ned
+from uwv.cbs.get_cbs_opendata_table import get_cbs_opendata_table
+from uwv.cbs.process_cbs_opendata_80072ned import process_cbs_opendata_80072ned
 
 
 app = typer.Typer(no_args_is_help=True)
