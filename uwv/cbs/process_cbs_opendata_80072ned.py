@@ -1,5 +1,9 @@
-from loguru import logger
 import pandas as pd
+import typer
+
+
+from datetime import date, datetime, timezone
+from loguru import logger
 
 
 from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR, CBS_OPENDATA_PROCESSED_DATA_DIR, CBS80072NED
@@ -56,6 +60,30 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     periods["period_quarter_number"] = periods["period_quarter_number"].astype(int)
     periods["period_quarter"] = periods.apply(
         lambda row: row["period_year"] * 10 + row["period_quarter_number"], axis=1
+    )
+
+    start_month = [1, 1, 4, 7, 10]
+    end_month = [12, 3, 6, 9, 12]
+    end_day = [31, 31, 30, 30, 31]
+    periods["period_start_date"] = periods.apply(
+        lambda row: datetime(
+            row["period_year"],
+            start_month[row["period_quarter_number"]],
+            1,
+            0, 0, 0,
+            tzinfo=timezone.utc
+        ),
+        axis=1,
+    )
+    periods["period_end_date"] = periods.apply(
+        lambda row: datetime(
+            row["period_year"],
+            end_month[row["period_quarter_number"]],
+            end_day[row["period_quarter_number"]],
+            0, 0, 0,
+            tzinfo=timezone.utc
+        ),
+        axis=1,
     )
 
     logger.trace(
