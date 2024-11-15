@@ -1,8 +1,7 @@
 import pandas as pd
-import typer
 
 
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from loguru import logger
 
 
@@ -23,9 +22,9 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     logger.debug(f"Processing CBS OpenData tabel {CBS80072NED}")
 
     logger.trace("Merge SBI df with groups and keep group title only")
-    sbi: pd.DataFrame = pd.read_json(external_data_dir / f"BedrijfskenmerkenSBI2008.json")
+    sbi: pd.DataFrame = pd.read_json(external_data_dir / "BedrijfskenmerkenSBI2008.json")
 
-    cat_groups: pd.DataFrame = pd.read_json(external_data_dir / f"CategoryGroups.json")
+    cat_groups: pd.DataFrame = pd.read_json(external_data_dir / "CategoryGroups.json")
 
     sbi_cat_groups = (
         pd.merge(
@@ -52,7 +51,7 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     # KW indicates it is a quarter : qq is the quarter number
     # JJ indicates it is a year : qq is equal to 00
     # split the period key into separate columns for easy slicing further down the line
-    periods: pd.DataFrame = pd.read_json(external_data_dir / f"Perioden.json")
+    periods: pd.DataFrame = pd.read_json(external_data_dir / "Perioden.json")
     periods[["period_year", "period_type", "period_quarter_number"]] = periods["Key"].str.extract(
         r"(\d+)(KW|JJ)(\d+)", expand=True
     )
@@ -70,8 +69,10 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
             row["period_year"],
             start_month[row["period_quarter_number"]],
             1,
-            0, 0, 0,
-            tzinfo=timezone.utc
+            0,
+            0,
+            0,
+            tzinfo=timezone.utc,
         ),
         axis=1,
     )
@@ -80,8 +81,10 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
             row["period_year"],
             end_month[row["period_quarter_number"]],
             end_day[row["period_quarter_number"]],
-            0, 0, 0,
-            tzinfo=timezone.utc
+            0,
+            0,
+            0,
+            tzinfo=timezone.utc,
         ),
         axis=1,
     )
@@ -89,7 +92,7 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     logger.trace(
         "Merge sick_leave_percentage with periods and keep period status and description and calculated fields"
     )
-    sick_leave_percentage: pd.DataFrame = pd.read_json(external_data_dir / f"TypedDataSet.json")
+    sick_leave_percentage: pd.DataFrame = pd.read_json(external_data_dir / "TypedDataSet.json")
 
     slp_periods = (
         pd.merge(

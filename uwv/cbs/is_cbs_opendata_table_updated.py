@@ -14,7 +14,7 @@ def is_cbs_opendata_table_updated(table_id: str) -> bool:
     :return:
     """
 
-    table_infos_file = CBS_OPENDATA_EXTERNAL_DATA_DIR / table_id / f"TableInfos.json"
+    table_infos_file = CBS_OPENDATA_EXTERNAL_DATA_DIR / table_id / "TableInfos.json"
     try:
         with open(table_infos_file, "rb") as f:
             table_infos = json.load(f)[0]
