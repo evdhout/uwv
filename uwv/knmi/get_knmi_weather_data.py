@@ -44,12 +44,16 @@ def get_knmi_avg_monthly_temp() -> pd.DataFrame:
     return df
 
 
-if __name__ == "__main__":
+def get_knmi_data(overwrite: bool = False):
     make_knmi_directories()
-    if not Path(KNMI_INTERIM_DATA_DIR / KNMI_AVG_TEMP).exists():
-        logger.info("Downloading KNMI average temperature data")
-        get_knmi_avg_montly_temp()
-        filter_knmi_avg_monthly_temp()
+
+    if Path(KNMI_INTERIM_DATA_DIR / KNMI_AVG_TEMP).exists() and not overwrite:
+        logger.error(f"KNMI data already exists in {KNMI_INTERIM_DATA_DIR} and {overwrite=}")
+        return
+
+    logger.info("Downloading KNMI average temperature data")
+    get_knmi_avg_montly_temp()
+    filter_knmi_avg_monthly_temp()
     pd_knmi = get_knmi_avg_monthly_temp()
 
     # remove the stn (station name) as we only have De Bilt
@@ -75,6 +79,6 @@ if __name__ == "__main__":
 
     pd_knmi_long.to_parquet(KNMI_PROCESSED_DATA_DIR / f"{KNMI_AVG_TEMP}.parquet")
 
-    pd_knmi.info()
-    pd_knmi_long.info()
-    print(pd_knmi_long)
+
+if __name__ == "__main__":
+    get_knmi_data(overwrite=True)

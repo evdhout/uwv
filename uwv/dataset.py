@@ -5,6 +5,7 @@ import typer
 from uwv.config import CBS_OPENDATA_TABLE_LIST
 from uwv.cbs.get_cbs_opendata_table import get_cbs_opendata_table
 from uwv.cbs.process_cbs_opendata_80072ned import process_cbs_opendata_80072ned
+from uwv.knmi.get_knmi_weather_data import get_knmi_data
 
 
 app = typer.Typer(no_args_is_help=True)
@@ -22,6 +23,7 @@ def main(overwrite: bool = False):
 
     # get KNMI dataset
     logger.info("Collecting KNMI dataset")
+    get_knmi_data(overwrite=overwrite)
 
     logger.info("Generating augmented dataset with additional columns")
     logger.critical("Generating augmented columns not implemented yet")
