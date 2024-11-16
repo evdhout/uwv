@@ -20,6 +20,10 @@ def main(overwrite: bool = False):
     logger.trace("Open the final main dataset (80072ned) to add features to")
     df = pd.read_parquet(get_cbs_parquet_file(CBS80072NED))
 
+    # add covid period marker
+    # COVID periode from first quarter of 2020 until second quarter of 2022 inclusive
+    df["covid"] = df.period_quarter.map(lambda x: 20200 <= x <= 20222)
+
     ## process the KNMI weather data
     logger.trace("Adding KNMI temperature data to the dataset")
     df = attach_knmi_temperature(df)

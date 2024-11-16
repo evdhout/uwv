@@ -23,9 +23,6 @@ def main(overwrite: bool = False):
     logger.info("Collecting KNMI dataset")
     get_knmi_data(overwrite=overwrite)
 
-    logger.info("Generating augmented dataset with additional columns")
-    logger.critical("Generating augmented columns not implemented yet")
-
 
 if __name__ == "__main__":
     app()

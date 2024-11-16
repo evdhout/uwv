@@ -155,9 +155,6 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
     for column in categorical_columns:
         slp_periods_sbi[column] = slp_periods_sbi[column].astype("category")
 
-    # COVID periode from first quarter of 2020 until second quarter of 2022 inclusive
-    slp_periods_sbi["covid"] = slp_periods_sbi.period_quarter.map(lambda x: 20200 <= x <= 20222)
-
     slp_periods_sbi.to_parquet(parquet_file)
     slp_periods_sbi.to_csv(csv_file, index=False)
     logger.trace("%s and %s have been saved" % (parquet_file, csv_file))
