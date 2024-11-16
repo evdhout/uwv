@@ -1,7 +1,9 @@
-import requests
-import pandas as pd
+from pathlib import Path
 
-from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR
+import pandas as pd
+import requests
+
+from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR, CBS_OPENDATA_PROCESSED_DATA_DIR
 
 
 def _get_response(url):
@@ -47,6 +49,10 @@ def create_cbs_data_path_if_not_exists(table_id: str):
 
 def get_table_infos_field(table_infos, field: str = "Modified") -> str:
     return table_infos[0][field]
+
+
+def get_cbs_parquet_file(table_id: str) -> Path:
+    return CBS_OPENDATA_PROCESSED_DATA_DIR / f"{table_id}.parquet"
 
 
 if __name__ == "__main__":

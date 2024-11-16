@@ -1,11 +1,13 @@
-import pandas as pd
-
-
 from datetime import datetime, timezone
+
+import pandas as pd
 from loguru import logger
 
-
-from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR, CBS_OPENDATA_PROCESSED_DATA_DIR, CBS80072NED
+from uwv.config import (
+    CBS80072NED,
+    CBS_OPENDATA_EXTERNAL_DATA_DIR,
+    CBS_OPENDATA_PROCESSED_DATA_DIR,
+)
 
 
 def process_cbs_opendata_80072ned(overwrite: bool = False):

@@ -36,6 +36,7 @@ lint:
 ## Format source code with black
 .PHONY: format
 format:
+	isort --profile black uwv
 	black --config pyproject.toml uwv
 
 
@@ -60,7 +61,8 @@ create_environment:
 ## Make Dataset
 .PHONY: data
 data: requirements
-	$(PYTHON_INTERPRETER) uwv/data/make_dataset.py
+	$(PYTHON_INTERPRETER) uwv/dataset.py --overwrite
+	$(PYTHON_INTERPRETER) uwv/features.py --overwrite
 
 
 #################################################################################

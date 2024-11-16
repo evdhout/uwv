@@ -1,10 +1,10 @@
-import typer
-from typing_extensions import Annotated
-from loguru import logger
 import cbsodata
+import typer
+from loguru import logger
+from typing_extensions import Annotated
 
-from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR
 from uwv.cbs.is_cbs_opendata_table_updated import is_cbs_opendata_table_updated
+from uwv.config import CBS_OPENDATA_EXTERNAL_DATA_DIR
 
 
 def get_cbs_opendata_table(

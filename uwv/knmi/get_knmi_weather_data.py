@@ -1,20 +1,17 @@
-import requests
-import pandas as pd
-from loguru import logger
 from pathlib import Path
+
+import pandas as pd
+import requests
+from loguru import logger
+
 from uwv.config import (
-    KNMI_AVG_TEMP_MONTH_URL,
     KNMI_AVG_TEMP,
-    KNMI_INTERIM_DATA_DIR,
+    KNMI_AVG_TEMP_MONTH_URL,
     KNMI_EXTERNAL_DATA_DIR,
+    KNMI_INTERIM_DATA_DIR,
     KNMI_PROCESSED_DATA_DIR,
 )
-
-
-def make_knmi_directories():
-    KNMI_EXTERNAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    KNMI_INTERIM_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    KNMI_PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+from uwv.knmi.knmi_helper_functions import make_knmi_directories
 
 
 def get_knmi_avg_montly_temp():
@@ -22,14 +19,14 @@ def get_knmi_avg_montly_temp():
     if not response.ok:
         raise Exception(f"Url {KNMI_AVG_TEMP_MONTH_URL} returned {response.status_code}")
 
-    with open(KNMI_EXTERNAL_DATA_DIR / KNMI_AVG_TEMP, "wb") as knmi_file:
+    with open(KNMI_EXTERNAL_DATA_DIR / f"{KNMI_AVG_TEMP}.txt", "wb") as knmi_file:
         knmi_file.write(response.content)
 
 
 def filter_knmi_avg_monthly_temp():
-    with open(KNMI_EXTERNAL_DATA_DIR / KNMI_AVG_TEMP, "r") as knmi_file:
+    with open(KNMI_EXTERNAL_DATA_DIR / f"{KNMI_AVG_TEMP}.txt", "r") as knmi_file:
         # remove all lines which preceed the data
-        with open(KNMI_INTERIM_DATA_DIR / KNMI_AVG_TEMP, "w") as knmi_interim_file:
+        with open(KNMI_INTERIM_DATA_DIR / f"{KNMI_AVG_TEMP}.csv", "w") as knmi_interim_file:
             knmi_interim_file.writelines(
                 [
                     line.replace(" ", "")
@@ -39,7 +36,9 @@ def filter_knmi_avg_monthly_temp():
 
 
 def get_knmi_avg_monthly_temp() -> pd.DataFrame:
-    df = pd.read_csv(KNMI_INTERIM_DATA_DIR / KNMI_AVG_TEMP, dtype="Int64", na_values=["      "])
+    df = pd.read_csv(
+        KNMI_INTERIM_DATA_DIR / f"{KNMI_AVG_TEMP}.csv", dtype="Int64", na_values=["      "]
+    )
     df.columns = map(str.lower, df.columns)
     return df
 
@@ -74,8 +73,12 @@ def get_knmi_data(overwrite: bool = False):
         ignore_index=True,
     )
 
+    pd_knmi_long.period_year = pd_knmi_long.period_year.astype("Int64")
     pd_knmi_long.period_quarter_number = pd_knmi_long.period_quarter_number.str[1]
     pd_knmi_long.period_quarter_number = pd_knmi_long.period_quarter_number.astype("Int64")
+    pd_knmi_long["period"] = pd_knmi_long.apply(
+        lambda row: f"{int(row.period_year)}KW0{int(row.period_quarter_number)}", axis=1
+    )
 
     pd_knmi_long.to_parquet(KNMI_PROCESSED_DATA_DIR / f"{KNMI_AVG_TEMP}.parquet")
 

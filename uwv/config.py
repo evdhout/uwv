@@ -71,6 +71,8 @@ KNMI_INTERIM_DATA_DIR = INTERIM_DATA_DIR / "knmi"
 KNMI_PROCESSED_DATA_DIR = PROCESSED_DATA_DIR / "knmi"
 KNMI_AVG_TEMP = "knmi_avg_temp"
 
+UWV_MODEL_PARQUET = PROCESSED_DATA_DIR / "uwv_data.parquet"
+
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
 try:

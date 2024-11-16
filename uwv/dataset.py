@@ -1,12 +1,10 @@
-from loguru import logger
 import typer
+from loguru import logger
 
-
-from uwv.config import CBS_OPENDATA_TABLE_LIST
 from uwv.cbs.get_cbs_opendata_table import get_cbs_opendata_table
 from uwv.cbs.process_cbs_opendata_80072ned import process_cbs_opendata_80072ned
+from uwv.config import CBS_OPENDATA_TABLE_LIST
 from uwv.knmi.get_knmi_weather_data import get_knmi_data
-
 
 app = typer.Typer(no_args_is_help=True)
 
