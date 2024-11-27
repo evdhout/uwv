@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 
 from uwv.config import CBS80072NED, CBS_OPENDATA_PROCESSED_DATA_DIR, OUTPUT_DIR, RAW_DATA_DIR
+from uwv.translations.sbi_translate import sbi_dutch_to_english, sbi_translate
 
 pd.set_option("mode.copy_on_write", True)
 
@@ -53,6 +54,13 @@ def get_data(period: str = "JJ", max_year: int = 2022) -> pd.DataFrame:
             slp_full.loc[slp_full.sbi == "301000", "parenttitle"] = (
                 "A Landbouw, bosbouw en visserij"
             )
+
+            # translate into english
+            #slp_full.sbi_title.cat.rename_categories(sbi_dutch_to_english)
+            slp_full.sbi_title = slp_full.apply(lambda row: sbi_translate(row.sbi_title), axis=1)
+            slp_full.sbi_title = slp_full.sbi_title.astype("category")
+            slp_full.parenttitle = slp_full.apply(lambda row: sbi_translate(row.parenttitle), axis=1)
+            slp_full.parenttitle = slp_full.parenttitle.astype("category")
             slp_full.to_parquet(sbi_with_parents_path)
             slp_full.to_csv(sbi_with_parents_path.with_suffix(".csv"), index=False)
 
@@ -82,11 +90,11 @@ def easi_lab_1_exp_plot():
         y="sbi_title",
         orientation="h",
         color="parenttitle",
-        title="Geen relatie tussen bedrijfstakken en bedrijfssectoren in ziektepercentage",
+        title="No relation to sick leave percentage within business sectors",
         labels={
-            "sbi_title": "Bedrijfstak",
-            "parenttitle": "Bedrijfssector",
-            "sick_leave_percentage": "Ziektepercentage",
+            "sbi_title": "Branch",
+            "parenttitle": "Sector",
+            "sick_leave_percentage": "Sick leave percentage",
         },
     )
     fig.update_yaxes(categoryorder="median ascending")
@@ -100,11 +108,11 @@ def easi_lab_1_exp_plot():
             y="sbi_title",
             orientation="h",
             color="parenttitle",
-            title=f"Kwartaal {q}",
+            title=f"Quarter {q}",
             labels={
-                "sbi_title": "Bedrijfstak",
-                "parenttitle": "Bedrijfssector",
-                "sick_leave_percentage": "Ziektepercentage",
+                "sbi_title": "Branch",
+                "parenttitle": "Sector",
+                "sick_leave_percentage": "Sick leave percentage",
             },
         )
         fig2.update_yaxes(categoryorder="median ascending")
