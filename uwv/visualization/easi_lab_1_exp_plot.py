@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 
 from uwv.config import CBS80072NED, CBS_OPENDATA_PROCESSED_DATA_DIR, OUTPUT_DIR, RAW_DATA_DIR
-from uwv.translations.sbi_translate import sbi_dutch_to_english, sbi_translate
+from uwv.translations.sbi_translate import sbi_translate
 
 pd.set_option("mode.copy_on_write", True)
 
@@ -56,10 +56,12 @@ def get_data(period: str = "JJ", max_year: int = 2022) -> pd.DataFrame:
             )
 
             # translate into english
-            #slp_full.sbi_title.cat.rename_categories(sbi_dutch_to_english)
+            # slp_full.sbi_title.cat.rename_categories(sbi_dutch_to_english)
             slp_full.sbi_title = slp_full.apply(lambda row: sbi_translate(row.sbi_title), axis=1)
             slp_full.sbi_title = slp_full.sbi_title.astype("category")
-            slp_full.parenttitle = slp_full.apply(lambda row: sbi_translate(row.parenttitle), axis=1)
+            slp_full.parenttitle = slp_full.apply(
+                lambda row: sbi_translate(row.parenttitle), axis=1
+            )
             slp_full.parenttitle = slp_full.parenttitle.astype("category")
             slp_full.to_parquet(sbi_with_parents_path)
             slp_full.to_csv(sbi_with_parents_path.with_suffix(".csv"), index=False)
@@ -80,26 +82,26 @@ def get_data(period: str = "JJ", max_year: int = 2022) -> pd.DataFrame:
     return slp_selection
 
 
-def easi_lab_1_exp_plot():
+def easi_lab_1_exp_plot(order: str = "descending"):
     slp_year = get_data(period="JJ", max_year=2022)
     slp_quarter = get_data(period="KW", max_year=2022)
 
-    fig = px.box(
-        slp_year,
-        x="sick_leave_percentage",
-        y="sbi_title",
-        orientation="h",
-        color="parenttitle",
-        title="No relation to sick leave percentage within business sectors",
-        labels={
-            "sbi_title": "Branch",
-            "parenttitle": "Sector",
-            "sick_leave_percentage": "Sick leave percentage",
-        },
-    )
-    fig.update_yaxes(categoryorder="median ascending")
-    fig.show()
-    fig.write_html(OUTPUT_DIR / "easi_lab_1_exp_plot_year.html")
+    for df, label in zip((slp_year, slp_quarter), ("year", "quarter")):
+        fig = px.box(
+            df,
+            x="sick_leave_percentage",
+            y="sbi_title",
+            orientation="h",
+            color="parenttitle",
+            title="No relation to sick leave percentage within business sectors",
+            labels={
+                "sbi_title": "Branch",
+                "parenttitle": "Sector",
+                "sick_leave_percentage": "Sick leave percentage",
+            },
+        )
+        fig.update_yaxes(categoryorder=f"median {order}")
+        fig.write_html(OUTPUT_DIR / f"easi_lab_1_exp_plot_{label}_{order}.html")
 
     for q in [1, 2, 3, 4]:
         fig2 = px.box(
@@ -116,7 +118,6 @@ def easi_lab_1_exp_plot():
             },
         )
         fig2.update_yaxes(categoryorder="median ascending")
-        fig2.show()
         fig2.write_html(OUTPUT_DIR / f"easi_lab_1_exp_plot_quarter_{q}.html")
 
 
