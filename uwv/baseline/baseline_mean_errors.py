@@ -75,11 +75,16 @@ def main(force: bool = False):
     dfs = calculate_mean_error()
 
     merged_df = dfs["le"].join(dfs["ra"], how="inner")
+    merged_df = merged_df.reset_index()
 
-    merged_df.to_parquet(BASELINE_MEAN_ERRORS_PARQUET)
-    logger.info(f"Saved {BASELINE_MEAN_ERRORS_PARQUET}")
-    merged_df.to_csv(BASELINE_MEAN_ERRORS_CSV)
-    logger.info(f"Saved {BASELINE_MEAN_ERRORS_CSV}")
+    merged_df.to_parquet(BASELINE_MEAN_ERRORS_PARQUET, index=False)
+    logger.info(
+        f"Saved {BASELINE_MEAN_ERRORS_PARQUET} with index=False to avoid duplicate index"
+    )
+    merged_df.to_csv(BASELINE_MEAN_ERRORS_CSV, index=False)
+    logger.info(
+        f"Saved {BASELINE_MEAN_ERRORS_CSV} with index=False to avoid duplicate index"
+    )
 
 
 if __name__ == "__main__":
