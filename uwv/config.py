@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from black.comments import ProtoComment
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -27,6 +28,11 @@ CBS_OPENDATA_EXTERNAL_DATA_DIR = EXTERNAL_DATA_DIR / "cbs"
 CBS_OPENDATA_PROCESSED_DATA_DIR = PROCESSED_DATA_DIR / "cbs"
 CBS80072NED = "80072ned"
 CBS_OPENDATA_TABLE_LIST = [CBS80072NED]
+
+BASELINE_CSV = PROCESSED_DATA_DIR / "baseline.csv"
+BASELINE_PARQUET = PROCESSED_DATA_DIR / "baseline.parquet"
+BASELINE_MEAN_ERRORS_CSV = PROCESSED_DATA_DIR / "baseline_mean_errors.csv"
+BASELINE_MEAN_ERRORS_PARQUET = PROCESSED_DATA_DIR / "baseline_mean_errors.parquet"
 
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135

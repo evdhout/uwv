@@ -5,10 +5,10 @@ import pandas as pd
 import typer
 from loguru import logger
 
-from uwv.config import CBS_OPENDATA_PROCESSED_DATA_DIR, CBS80072NED, PROCESSED_DATA_DIR
+from uwv.config import CBS_OPENDATA_PROCESSED_DATA_DIR, CBS80072NED, BASELINE_CSV, BASELINE_PARQUET
 
-PREDICTION_NAME = {'le': 'linear extrapolation', 'ra': 'rolling average'}
-PREFIXES = ['le', 'ra']
+PREDICTION_NAME = {"le": "linear extrapolation", "ra": "rolling average"}
+PREFIXES = ["le", "ra"]
 
 app = typer.Typer(no_args_is_help=True)
 slp: pd.DataFrame
@@ -32,10 +32,11 @@ def get_previous_slp(row: pd.DataFrame, year_delta: int):
              specified year delta.
     :rtype: float
     """
-    return slp[(slp.sbi == row.sbi) &
-               (slp.period_year == row.period_year - year_delta) &
-               (slp.period_quarter_number == row.period_quarter_number)
-               ]['sick_leave_percentage'].values[0]
+    return slp[
+        (slp.sbi == row.sbi)
+        & (slp.period_year == row.period_year - year_delta)
+        & (slp.period_quarter_number == row.period_quarter_number)
+    ]["sick_leave_percentage"].values[0]
 
 
 def get_prediction_linear_extrapolation(row: pd.DataFrame) -> int or pd.NA:
@@ -142,10 +143,14 @@ def calculate_errors():
         logger.info(f"Calculating absolute error for {PREDICTION_NAME[prefix]}")
 
         prediction = f"{prefix}_prediction"
-        slp[f'{prefix}_absolute_error'] = slp.apply(lambda row: calculate_absolute_error(row, prediction), axis=1)
+        slp[f"{prefix}_absolute_error"] = slp.apply(
+            lambda row: calculate_absolute_error(row, prediction), axis=1
+        )
 
         logger.info(f"Calculating squared error for {PREDICTION_NAME[prefix]}")
-        slp[f'{prefix}_squared_error'] = slp.apply(lambda row: calculate_squared_error(row, prediction), axis=1)
+        slp[f"{prefix}_squared_error"] = slp.apply(
+            lambda row: calculate_squared_error(row, prediction), axis=1
+        )
 
 
 def round_error_values():
@@ -165,11 +170,13 @@ def round_error_values():
 
         absolute_error = f"{prefix}_absolute_error"
         slp[absolute_error] = slp[absolute_error].apply(
-            lambda x: np.round(x, decimals=1) if not pd.isna(x) else pd.NA)
+            lambda x: np.round(x, decimals=1) if not pd.isna(x) else pd.NA
+        )
 
         squared_error = f"{prefix}_squared_error"
         slp[squared_error] = slp[squared_error].apply(
-            lambda x: np.round(x, decimals=2) if not pd.isna(x) else pd.NA)
+            lambda x: np.round(x, decimals=2) if not pd.isna(x) else pd.NA
+        )
 
 
 def round_predictions():
@@ -185,7 +192,9 @@ def round_predictions():
     for prefix in PREFIXES:
         logger.info(f"Rounding predictions for {PREDICTION_NAME[prefix]}")
         prediction = f"{prefix}_prediction"
-        slp[prediction] = slp[prediction].apply(lambda x: np.round(x, decimals=1) if not pd.isna(x) else pd.NA)
+        slp[prediction] = slp[prediction].apply(
+            lambda x: np.round(x, decimals=1) if not pd.isna(x) else pd.NA
+        )
 
 
 def show_total_errors():
@@ -201,15 +210,17 @@ def show_total_errors():
 
     :return: None
     """
-    slp_total = slp[slp.sbi == 'T001081']
+    slp_total = slp[slp.sbi == "T001081"]
 
     for prefix in PREFIXES:
-        print(f'Mean absolute error of {PREDICTION_NAME[prefix]} for total on quarter number')
-        print(slp_total.groupby('period_quarter_number')[f'{prefix}_absolute_error'].mean())
-        print('Root mean squared error of total on quarter number')
-        print(slp_total.groupby('period_quarter_number')[f'{prefix}_squared_error']
-              .mean()
-              .apply(lambda x: math.sqrt(x)))
+        print(f"Mean absolute error of {PREDICTION_NAME[prefix]} for total on quarter number")
+        print(slp_total.groupby("period_quarter_number")[f"{prefix}_absolute_error"].mean())
+        print("Root mean squared error of total on quarter number")
+        print(
+            slp_total.groupby("period_quarter_number")[f"{prefix}_squared_error"]
+            .mean()
+            .apply(lambda x: math.sqrt(x))
+        )
 
 
 @app.command()
@@ -240,29 +251,26 @@ def main(force: bool = False, info: bool = False):
         logger.error(f"File {CBS_OPENDATA_PROCESSED_DATA_DIR} / {CBS80072NED}.parquet not found.")
         raise typer.Abort()
 
-    baseline_parquet = PROCESSED_DATA_DIR / f"baseline-{CBS80072NED}.parquet"
-    baseline_csv = PROCESSED_DATA_DIR / f"baseline-{CBS80072NED}.csv"
-
-    if baseline_parquet.is_file() and not force:
-        logger.error(f"Baseline file {baseline_parquet} already exists and {force=}")
+    if BASELINE_PARQUET.is_file() and not force:
+        logger.error(f"Baseline file {BASELINE_PARQUET} already exists and {force=}")
         raise typer.Abort
 
     logger.info("Calculating prediction linear extrapolation")
-    slp['le_prediction'] = slp.apply(lambda row: get_prediction_linear_extrapolation(row), axis=1)
+    slp["le_prediction"] = slp.apply(lambda row: get_prediction_linear_extrapolation(row), axis=1)
 
     logger.info("Calculating prediction rolling average")
-    slp['ra_prediction'] = slp.apply(lambda row: get_prediction_rolling_average(row), axis=1)
+    slp["ra_prediction"] = slp.apply(lambda row: get_prediction_rolling_average(row), axis=1)
 
     round_predictions()
     calculate_errors()
     round_error_values()
 
-    slp.to_csv(baseline_csv, index=False)
-    slp.to_parquet(baseline_parquet, index=False)
+    slp.to_csv(BASELINE_CSV, index=False)
+    slp.to_parquet(BASELINE_PARQUET, index=False)
 
     if info:
         show_total_errors()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app()
