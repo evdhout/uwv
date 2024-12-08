@@ -217,13 +217,14 @@ def main(force: bool = False, info: bool = False):
     """
     Main function of the application, executed via command line.
 
-    This function performs multiple operations on data loaded from a Parquet
-    file, including predictions using linear extrapolation and rolling average.
+    This function calculates the predictions using linear extrapolation and rolling
+    average from the parquet file with sick leave percentages.
     The results are saved in both CSV and Parquet file formats. If the output
     file already exists and the `force` parameter is not set to True, the process
-    aborts. Additionally, it can provide error information based on the input
-    parameters.
+    aborts.
+    Additionally, it can provide mean error information on all quarters.
 
+    :raises FileNotFoundError: If the input file does not exist.
     :param force: Boolean flag that determines whether to overwrite existing
                   baseline files if they exist.
     :type force: bool
