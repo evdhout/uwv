@@ -24,6 +24,7 @@ SBI_TITLE_DICT = {}
 def get_sbi_title(sbi: str):
     return baseline[baseline.sbi == sbi]["sbi_title"].values[0]
 
+
 def translate_sbi_title(sbi: str, sbi_title: str):
     return sbi_translate(sbi_title) if sbi != TOTAL_SBI else "All economical activities"
 
@@ -47,7 +48,9 @@ def load_dataframe():
 
     # translate the sbi descriptions to dutch
     logger.debug("Translating SBI titles to Dutch")
-    baseline.sbi_title = baseline.apply(lambda row: translate_sbi_title(row.sbi, row.sbi_title), axis=1)
+    baseline.sbi_title = baseline.apply(
+        lambda row: translate_sbi_title(row.sbi, row.sbi_title), axis=1
+    )
     baseline.sbi_title = baseline.sbi_title.astype("category")
 
     baseline_errors.sbi_title = baseline_errors.apply(
@@ -56,8 +59,9 @@ def load_dataframe():
     baseline_errors.sbi_title = baseline_errors.sbi_title.astype("category")
 
     # create a text string for the mean's
-    baseline_errors['formatted_mean_absolute_error'] = baseline_errors['mean_absolute_error_ra'].round(3).astype(str)
-
+    baseline_errors["formatted_mean_absolute_error"] = (
+        baseline_errors["mean_absolute_error_ra"].round(3).astype(str)
+    )
 
     # create the title dictionary for easy reference when creating viz
     logger.debug("Creating SBI title dictionary")
@@ -98,8 +102,8 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
             orientation="h",  # Horizontal orientation
             x=0.5,  # Center horizontally
             y=-0.2,  # Position below the plot, adjust the value as needed
-            xanchor='center',  # Horizontally center the legend
-            yanchor='top'  # Align the legend’s top with the specified `y` position
+            xanchor="center",  # Horizontally center the legend
+            yanchor="top",  # Align the legend’s top with the specified `y` position
         ),
     )
 
@@ -109,13 +113,15 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
 def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
     fig = go.Figure()
 
+    baseline_all_branches = baseline[(baseline.sbi.isin(sbi_list)) & (baseline.period_type == viz_type)]
+
+    # Ensure the period column is formatted correctly
+    first_quarter_periods = baseline_all_branches[
+        baseline_all_branches["period"].astype(str).str.endswith("1")
+    ]["period"].unique()
+
     for sbi in sbi_list:
         baseline_branches = baseline[(baseline.sbi == sbi) & (baseline.period_type == viz_type)]
-
-        # Ensure the period column is formatted correctly
-        first_quarter_periods = baseline_branches[
-            baseline_branches["period"].astype(str).str.endswith("1")
-        ]["period"].unique()
 
         # Add line for ra_prediction
         fig.add_trace(
@@ -141,7 +147,7 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
 
     # Customize the layout
     fig.update_layout(
-        title="Rolling Averages and Actual Values for Multiple Branches",
+        title="Sick leave percentage of predections and actual values",
         xaxis_title="Period",
         yaxis_title="Prediction/Actual Values",
         xaxis=dict(
@@ -154,8 +160,8 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
             orientation="h",  # Horizontal orientation
             x=0.5,  # Center horizontally
             y=-0.2,  # Position below the plot, adjust the value as needed
-            xanchor='center',  # Horizontally center the legend
-            yanchor='top'  # Align the legend’s top with the specified `y` position
+            xanchor="center",  # Horizontally center the legend
+            yanchor="top",  # Align the legend’s top with the specified `y` position
         ),
     )
 
@@ -165,9 +171,7 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
 def viz_mean_absolute_errors(sbi_list: list):
     baseline_branch_errors = baseline_errors[
         (baseline_errors.sbi.isin(sbi_list)) & (baseline_errors.period_quarter_number > 0)
-        ]
-
-
+    ]
 
     fig = px.scatter(
         baseline_branch_errors,
@@ -175,16 +179,16 @@ def viz_mean_absolute_errors(sbi_list: list):
         y="mean_absolute_error_ra",
         color="sbi_title",
         title="Mean Absolute Errors for Rolling Average",
-        text="formatted_mean_absolute_error"  # Add this line to label markers with their Y values
+        text="formatted_mean_absolute_error",  # Add this line to label markers with their Y values
     )
 
     # Adjust positions of text labels by trace index
     for i, trace in enumerate(fig.data):
         # Set text position based on the trace index
-        position = 'bottom center' if i % 2 == 0 else 'top center'
+        position = "bottom center" if i % 2 == 0 else "top center"
 
         trace.update(
-            mode='lines+markers+text',
+            mode="lines+markers+text",
             textposition=position,
         )
 
@@ -195,13 +199,13 @@ def viz_mean_absolute_errors(sbi_list: list):
         yaxis_title="Mean Absolute Error",
         xaxis_title="Quarter Number",
         xaxis_type="category",  # Treat the x-axis as categorical
-        legend = dict(
+        legend=dict(
             title="",
             orientation="h",  # Horizontal orientation
             x=0.5,  # Center horizontally
             y=-0.2,  # Position below the plot, adjust the value as needed
-            xanchor='center',  # Horizontally center the legend
-            yanchor='top'  # Align the legend’s top with the specified `y` position
+            xanchor="center",  # Horizontally center the legend
+            yanchor="top",  # Align the legend’s top with the specified `y` position
         ),
     )
 
@@ -209,15 +213,22 @@ def viz_mean_absolute_errors(sbi_list: list):
 
 
 @app.command()
-def main(force: bool = False):
+def main(
+    force: bool = False,
+    with_total: bool = False,
+    viz_type: str = "KW",
+    sbi_individual_plots: bool = False,
+):
     load_dataframe()
 
-    # for sbi in SBI_LIST:
-    #     viz_predictions(sbi=sbi)
-    #
-    # viz_multiple_branches(sbi_list=SBI_LIST)
-    viz_multiple_branches(sbi_list=SBI_LIST_WITH_TOTAL)
-    viz_mean_absolute_errors(sbi_list=SBI_LIST_WITH_TOTAL)
+    sbi_list = SBI_LIST if not with_total else SBI_LIST_WITH_TOTAL
+
+    if sbi_individual_plots:
+        for sbi in sbi_list:
+            viz_predictions(sbi=sbi, viz_type=viz_type)
+
+    viz_multiple_branches(sbi_list=sbi_list, viz_type=viz_type)
+    viz_mean_absolute_errors(sbi_list=sbi_list)
 
 
 if __name__ == "__main__":
