@@ -1,8 +1,12 @@
-requests
-pyarrow
+statsmodels
+seaborn
+plotly
+plotly-express
 altair[all]
 vl-convert-python
-seaborn
+requests
+pyarrow
+cbsodata
 black
 flake8
 ipython
