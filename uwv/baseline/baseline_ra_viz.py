@@ -147,6 +147,8 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
 
     # Customize the layout
     fig.update_layout(
+        plot_bgcolor="rgb(0,0,0,0)",
+        paper_bgcolor="rgb(0,0,0,0)",
         title="Sick leave percentage of predections and actual values",
         xaxis_title="Period",
         yaxis_title="Prediction/Actual Values",
@@ -154,6 +156,10 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
             tickvals=first_quarter_periods,
             ticktext=[str(period)[:4] for period in first_quarter_periods],
             # Display the year only for the first quarter
+            showgrid=False,
+        ),
+        yaxis=dict(
+            showgrid=False,
         ),
         legend=dict(
             title="",
@@ -196,6 +202,8 @@ def viz_mean_absolute_errors(sbi_list: list):
         trace.textfont.color = trace.marker.color
 
     fig.update_layout(
+        plot_bgcolor="rgb(0,0,0,0)",
+        paper_bgcolor="rgb(0,0,0,0)",
         yaxis_title="Mean Absolute Error",
         xaxis_title="Quarter Number",
         xaxis_type="category",  # Treat the x-axis as categorical
@@ -206,6 +214,12 @@ def viz_mean_absolute_errors(sbi_list: list):
             y=-0.2,  # Position below the plot, adjust the value as needed
             xanchor="center",  # Horizontally center the legend
             yanchor="top",  # Align the legend’s top with the specified `y` position
+        ),
+        xaxis=dict(
+            showgrid=False,
+        ),
+        yaxis=dict(
+            showgrid=False,
         ),
     )
 
