@@ -1,7 +1,9 @@
 import math
+from pathlib import Path
 
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import pandas as pd
 import numpy as np
 import typer
@@ -13,6 +15,7 @@ from uwv.translations.sbi_translate import sbi_translate
 app = typer.Typer(no_args_is_help=True)
 baseline: pd.DataFrame
 baseline_errors: pd.DataFrame
+HTML_DIR: Path = OUTPUT_DIR / "baseline"
 
 TOTAL_SBI = "T001081"
 SBI_LIST = ["307500", "354200", "422400"]
@@ -98,6 +101,7 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
             ticktext=[str(period)[:4] for period in first_quarter_periods],
         ),
         legend=dict(
+            bgcolor="rgba(0,0,0,0)",
             title="",
             orientation="h",  # Horizontal orientation
             x=0.5,  # Center horizontally
@@ -107,7 +111,9 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
         ),
     )
 
-    fig.show()
+    html_file = str(HTML_DIR / f"baseline-viz-{sbi}-{viz_type}.html")
+    logger.info(f"Saving plot to html file {html_file}...")
+    fig.write_html(html_file)
 
 
 def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
@@ -147,8 +153,8 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
 
     # Customize the layout
     fig.update_layout(
-        plot_bgcolor="rgb(0,0,0,0)",
-        paper_bgcolor="rgb(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
         title="Sick leave percentage of predections and actual values",
         xaxis_title="Period",
         yaxis_title="Prediction/Actual Values",
@@ -159,9 +165,11 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
             showgrid=False,
         ),
         yaxis=dict(
-            showgrid=False,
+            gridcolor="lightgrey",
+            showgrid=True,
         ),
         legend=dict(
+            bgcolor="rgba(0,0,0,0)",
             title="",
             orientation="h",  # Horizontal orientation
             x=0.5,  # Center horizontally
@@ -171,7 +179,10 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
         ),
     )
 
-    fig.show()
+    html_file = str(HTML_DIR / f"baseline-viz-{'-'.join(sbi_list)}-{viz_type}.html")
+    logger.info(f"Saving plot to html file {html_file}...")
+    fig.write_html(html_file)
+
 
 
 def viz_mean_absolute_errors(sbi_list: list):
@@ -202,12 +213,13 @@ def viz_mean_absolute_errors(sbi_list: list):
         trace.textfont.color = trace.marker.color
 
     fig.update_layout(
-        plot_bgcolor="rgb(0,0,0,0)",
-        paper_bgcolor="rgb(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
         yaxis_title="Mean Absolute Error",
         xaxis_title="Quarter Number",
         xaxis_type="category",  # Treat the x-axis as categorical
         legend=dict(
+            bgcolor="rgba(0,0,0,0)",
             title="",
             orientation="h",  # Horizontal orientation
             x=0.5,  # Center horizontally
@@ -219,11 +231,14 @@ def viz_mean_absolute_errors(sbi_list: list):
             showgrid=False,
         ),
         yaxis=dict(
+            #gridcolor="lightgrey",
             showgrid=False,
         ),
     )
 
-    fig.show()
+    html_file = str(HTML_DIR / f"baseline-viz-{'-'.join(sbi_list)}-mae.html")
+    logger.info(f"Saving plot to html file {html_file}...")
+    fig.write_html(html_file)
 
 
 @app.command()
@@ -234,6 +249,9 @@ def main(
     sbi_individual_plots: bool = False,
 ):
     load_dataframe()
+
+    if not HTML_DIR.exists() and force:
+        HTML_DIR.mkdir(parents=True, exist_ok=True)
 
     sbi_list = SBI_LIST if not with_total else SBI_LIST_WITH_TOTAL
 
