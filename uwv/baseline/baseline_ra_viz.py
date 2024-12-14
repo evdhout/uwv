@@ -39,6 +39,8 @@ def get_sbi_title(sbi: str):
 
 
 def translate_sbi_title(sbi: str, sbi_title: str):
+    if sbi_title.startswith("Q"):
+        return "Q Health care"
     return sbi_translate(sbi_title) if sbi != TOTAL_SBI else "All economical activities"
 
 
@@ -86,7 +88,8 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
 
     # Filter periods for the first quarter of each year
     first_quarter_periods = baseline_branches[
-        baseline_branches["period"].astype(str).str.endswith("1")
+        (baseline_branches["period"].astype(str).str.endswith("1"))
+        & (baseline_branches["period_year"] % 4 == 0)
     ]["period"].unique()
 
     fig = px.line(
@@ -108,9 +111,12 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
 
     # Customize x-axis to show ticks only for the first quarters
     fig.update_layout(
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(
             tickvals=first_quarter_periods,
             ticktext=[str(period)[:4] for period in first_quarter_periods],
+            showgrid=False,
         ),
         legend=dict(
             bgcolor="rgba(0,0,0,0)",
@@ -135,7 +141,8 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
 
     # Ensure the period column is formatted correctly
     first_quarter_periods = baseline_all_branches[
-        baseline_all_branches["period"].astype(str).str.endswith("1")
+        (baseline_all_branches["period"].astype(str).str.endswith("1"))
+        & (baseline_all_branches["period_year"] % 4 == 0)
     ]["period"].unique()
 
     for sbi in sbi_list:
