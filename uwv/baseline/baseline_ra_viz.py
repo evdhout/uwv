@@ -20,6 +20,16 @@ HTML_DIR: Path = OUTPUT_DIR / "baseline"
 TOTAL_SBI = "T001081"
 SBI_LIST = ["307500", "354200", "422400"]
 SBI_LIST_WITH_TOTAL = SBI_LIST + [TOTAL_SBI]
+SBI_COLOR_MAP = {
+    "307500": "#1f77b4",  # Blue
+    "C Manufacturing": "#1f77b4",
+    "354200": "#ff7f0e",  # Orange
+    "G Trade": "#ff7f0e",
+    "422400": "#2ca02c",  # Green
+    "Q Human health and social work activities": "#2ca02c",
+    "Q Health care": "#2ca02c",
+    "T001081": "#aaaaaa", # Grey
+}
 
 SBI_TITLE_DICT = {}
 
@@ -85,6 +95,7 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
         y="ra_prediction",
         color="sbi_title",
         title=f"Rolling averages for branch {SBI_TITLE_DICT[sbi]}",
+        color_discrete_map=SBI_COLOR_MAP,
     )
 
     fig.add_scatter(
@@ -92,6 +103,7 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
         y=baseline_branches.sick_leave_percentage,
         mode="markers",
         name="Actual values",
+        marker = dict(color=SBI_COLOR_MAP[sbi]),
     )
 
     # Customize x-axis to show ticks only for the first quarters
@@ -127,6 +139,7 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
     ]["period"].unique()
 
     for sbi in sbi_list:
+        #logger.debug(f"Color for {sbi} = {SBI_COLOR_MAP[sbi]}")
         baseline_branches = baseline[(baseline.sbi == sbi) & (baseline.period_type == viz_type)]
 
         # Add line for ra_prediction
@@ -136,7 +149,8 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
                 y=baseline_branches["ra_prediction"],
                 mode="lines",
                 name=f"{SBI_TITLE_DICT[sbi]} - Predicted",
-                line=dict(color=px.colors.qualitative.Plotly[sbi_list.index(sbi) % 10]),
+                #line=dict(color=px.colors.qualitative.Plotly[sbi_list.index(sbi) % 10]),
+                line=dict(color=SBI_COLOR_MAP[sbi]),
             )
         )
 
@@ -147,7 +161,8 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
                 y=baseline_branches["sick_leave_percentage"],
                 mode="markers",
                 name=f"{SBI_TITLE_DICT[sbi]} - Actual",
-                marker=dict(color=px.colors.qualitative.Plotly[sbi_list.index(sbi) % 10]),
+                #marker=dict(color=px.colors.qualitative.Plotly[sbi_list.index(sbi) % 10]),
+                marker=dict(color=SBI_COLOR_MAP[sbi])
             )
         )
 
@@ -190,6 +205,13 @@ def viz_mean_absolute_errors(sbi_list: list):
         (baseline_errors.sbi.isin(sbi_list)) & (baseline_errors.period_quarter_number > 0)
     ]
 
+    titles = baseline_branch_errors.sbi_title.unique()
+    logger.debug(f"titles = {titles}")
+    logger.debug(f"SBI_COLOR_MAP = {SBI_COLOR_MAP}")
+
+    for title in titles:
+        logger.debug(f"title = {title}, color = {SBI_COLOR_MAP[title]}")
+
     fig = px.scatter(
         baseline_branch_errors,
         x="period_quarter_number",
@@ -197,6 +219,7 @@ def viz_mean_absolute_errors(sbi_list: list):
         color="sbi_title",
         title="Mean Absolute Errors for Rolling Average",
         text="formatted_mean_absolute_error",  # Add this line to label markers with their Y values
+        color_discrete_map=SBI_COLOR_MAP,
     )
 
     # Adjust positions of text labels by trace index
