@@ -92,20 +92,22 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
         & (baseline_branches["period_year"] % 4 == 0)
     ]["period"].unique()
 
-    fig = px.line(
-        baseline_branches,
-        x="period",
-        y="ra_prediction",
-        color="sbi_title",
-        title=f"Rolling averages for branch {SBI_TITLE_DICT[sbi]}",
-        color_discrete_map=SBI_COLOR_MAP,
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=baseline_branches["period"],
+            y=baseline_branches["ra_prediction"],
+            mode="lines",
+            name=f"{SBI_TITLE_DICT[sbi]} - Prediction",
+            line=dict(color=SBI_COLOR_MAP[sbi]),
+        )
     )
 
     fig.add_scatter(
         x=baseline_branches.period,
         y=baseline_branches.sick_leave_percentage,
         mode="markers",
-        name="Actual values",
+        name=f"{SBI_TITLE_DICT[sbi]} - Actual",
         marker = dict(color=SBI_COLOR_MAP[sbi]),
     )
 
@@ -113,6 +115,9 @@ def viz_predictions(sbi: str, viz_type: str = "KW"):
     fig.update_layout(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
+        title=f"Rolling averages for branch {SBI_TITLE_DICT[sbi]}",
+        xaxis_title="Period",
+        yaxis_title="Prediction/Actual Values",
         xaxis=dict(
             tickvals=first_quarter_periods,
             ticktext=[str(period)[:4] for period in first_quarter_periods],
@@ -155,7 +160,7 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
                 x=baseline_branches["period"],
                 y=baseline_branches["ra_prediction"],
                 mode="lines",
-                name=f"{SBI_TITLE_DICT[sbi]} - Predicted",
+                name=f"{SBI_TITLE_DICT[sbi]} - Prediction",
                 #line=dict(color=px.colors.qualitative.Plotly[sbi_list.index(sbi) % 10]),
                 line=dict(color=SBI_COLOR_MAP[sbi]),
             )
@@ -177,7 +182,7 @@ def viz_multiple_branches(sbi_list: list, viz_type: str = "KW"):
     fig.update_layout(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        title="Sick leave percentage of predections and actual values",
+        title="Sick leave percentage predictions vs. actual values",
         xaxis_title="Period",
         yaxis_title="Prediction/Actual Values",
         xaxis=dict(
