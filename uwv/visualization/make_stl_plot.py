@@ -8,6 +8,24 @@ from statsmodels.tsa.seasonal import STL
 from uwv.config import CBS80072NED, CBS_OPENDATA_PROCESSED_DATA_DIR
 from uwv.visualization.helpers import save_fig
 
+SBI_COLOR_MAP = {
+    "307500": "#1f77b4",  # Blue
+    "C Manufacturing": "#1f77b4",
+    "354200": "#ff7f0e",  # Orange
+    "G Trade": "#ff7f0e",
+    "422400": "#2ca02c",  # Green
+    "Q Human health and social work activities": "#2ca02c",
+    "Q Health care": "#2ca02c",
+    "T001081": "#000000", # Grey
+}
+
+SBI_TITLE_MAP = {
+    "307500": "C Manufacturing",  # Blue
+    "354200": "G Trade",  # Orange
+    "422400": "Q Health care",  # Green
+    "T001081": "A-U All economical activities", # Grey
+}
+
 
 def get_series(start_year: int, end_year: int, dataset: str = "T001081") -> pd.Series:
     """Get the series for the STL plot from the complete dataframe
@@ -41,8 +59,9 @@ def make_stl_plot(start_year: int = 1996, end_year: int = 2022, dataset: str = "
     """Generate season trend decomposition plot
 
     Args:
-        start_year (int, optional): Year to start with. Defaults to 2012.
-        end_year (int, optional): Year to end with. Defaults to 2022.
+        :param end_year: Year to start with. Defaults to 2012.
+        :param start_year: Year to end with. Defaults to 2022.
+        :param dataset:
     """
     slp_series = get_series(start_year=start_year, end_year=end_year, dataset=dataset)
 
@@ -52,10 +71,15 @@ def make_stl_plot(start_year: int = 1996, end_year: int = 2022, dataset: str = "
     res = stl.fit()
     fig: Figure = res.plot()
     slp, trend, season, residual = fig.get_axes()
+    slp.lines[0].set_color(SBI_COLOR_MAP[dataset])
+    trend.lines[0].set_color(SBI_COLOR_MAP[dataset])
+    season.lines[0].set_color(SBI_COLOR_MAP[dataset])
+    residual.lines[0].set_color(SBI_COLOR_MAP[dataset])
 
     slp.set_title(
-        f"Season-Trend decomposition using LOESS of "
-        f"quartely sick leave percentages ({start_year} - {end_year})",
+        f"Season-Trend decomposition using LOESS "
+        # f"quartely sick leave percentages ({start_year} - {end_year})"
+        f"for {"branch " if dataset[0] != "T" else ""}{SBI_TITLE_MAP[dataset]} ({start_year} - {end_year})",
         fontsize=8,
         fontweight="bold",
     )
@@ -91,4 +115,7 @@ def make_stl_plot(start_year: int = 1996, end_year: int = 2022, dataset: str = "
 
 
 if __name__ == "__main__":
-    make_stl_plot()
+
+    for dataset in ["T001081", "307500", "354200", "422400"]:
+        logger.trace(f"Processing {dataset}")
+        make_stl_plot(dataset=dataset)
