@@ -113,6 +113,9 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         }
     )
 
+    # sbi_description is too verbose to keep
+    slp_periods_sbi = slp_periods_sbi.drop("sbi_description", axis=1)
+
     # Convert columns to categorical
     categorical_columns = [
         "sbi",
@@ -121,12 +124,14 @@ def process_cbs_opendata_80072ned(overwrite: bool = False):
         "period_status",
         "period_type",
         "sbi_title",
-        "sbi_description",
         "category_group_title",
     ]
 
     for column in categorical_columns:
         slp_periods_sbi[column] = slp_periods_sbi[column].astype("category")
+
+    # COVID periode from first quarter of 2020 until second quarter of 2022 inclusive
+    slp_periods_sbi["covid"] = slp_periods_sbi.period_quarter.map(lambda x: 20200 <= x <= 20222)
 
     slp_periods_sbi.to_parquet(parquet_file)
     slp_periods_sbi.to_csv(csv_file, index=False)
