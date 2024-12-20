@@ -23,7 +23,43 @@ def easi_lab_1_exp_plot(order: str = "descending"):
                 "sick_leave_percentage": "Sick leave percentage",
             },
         )
-        fig.update_yaxes(categoryorder=f"median {order}")
+        fig.update_yaxes(
+            categoryorder=f"median {order}",
+        )
+        fig.update_traces(
+            # marker_line_width=1,
+            # marker_line_color="black",
+            width=0.5,
+        )
+        fig.update_layout(
+            plot_bgcolor="white",
+            paper_bgcolor="white",
+            width=1000,
+            height=600,
+            xaxis=dict(
+                title=dict(font=dict(size=12)),
+                gridcolor="lightgray",
+                showgrid=True,
+            ),
+            yaxis=dict(
+                title=dict(font=dict(size=12)),
+                showgrid=False,
+            ),
+            title_font=dict(size=14),
+            boxgap=0,
+            boxgroupgap=0,
+            legend=dict(
+                valign="middle",
+                bgcolor="rgba(0,0,0,0)",
+                title="",
+                traceorder="normal",
+                orientation="h",  # Horizontal orientation
+                x=0.5,  # Center horizontally
+                y=-0.2,  # Position below the plot, adjust the value as needed
+                xanchor="center",  # Horizontally center the legend
+                yanchor="top",  # Align the legend’s top with the specified `y` position,
+            ),
+        )
         fig.write_html(OUTPUT_DIR / f"easi_lab_1_exp_plot_{label}_{order}.html")
 
     for q in [1, 2, 3, 4]:
@@ -41,6 +77,19 @@ def easi_lab_1_exp_plot(order: str = "descending"):
             },
         )
         fig2.update_yaxes(categoryorder="median ascending")
+        fig2.update_layout(
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            legend=dict(
+                bgcolor="rgba(0,0,0,0)",
+                title="",
+                orientation="h",  # Horizontal orientation
+                x=0.5,  # Center horizontally
+                y=-0.2,  # Position below the plot, adjust the value as needed
+                xanchor="center",  # Horizontally center the legend
+                yanchor="top",  # Align the legend’s top with the specified `y` position
+            ),
+        )
         fig2.write_html(OUTPUT_DIR / f"easi_lab_1_exp_plot_quarter_{q}.html")
 
 
