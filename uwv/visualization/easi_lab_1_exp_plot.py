@@ -7,7 +7,15 @@ from uwv.visualization.get_slp_data import get_slp_data
 
 def easi_lab_1_exp_plot(order: str = "descending"):
     slp_year = get_slp_data(period="JJ", max_year=2022)
+    slp_year.sbi_title = slp_year.apply(
+        lambda row: "Q Health care" if row.sbi_title.startswith("Q") else row.sbi_title, axis=1
+    )
+    slp_year.sbi_title = slp_year.sbi_title.astype("category")
     slp_quarter = get_slp_data(period="KW", max_year=2022)
+    slp_quarter.sbi_title = slp_quarter.apply(
+        lambda row: "Q Health care" if row.sbi_title.startswith("Q") else row.sbi_title, axis=1
+    )
+    slp_quarter.sbi_title = slp_quarter.sbi_title.astype("category")
 
     for df, label in zip((slp_year, slp_quarter), ("year", "quarter")):
         fig = px.box(
